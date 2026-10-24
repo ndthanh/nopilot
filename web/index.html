@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="nopilot-token" content="__CSRF_TOKEN__"><title>Nopilot · Local workspace</title><script src="/theme.js"></script><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/markdown.css"></head>
+<body data-build="__BUILD_ID__">
+<button id="reloadUpdate" class="dev-button primary" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:20" hidden>Có bản Nopilot mới · Tải lại</button>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="Nopilot home"><span class="brand-icon">n<span>↗</span></span><span>Nopilot</span><small>LOCAL</small></a>
+  <button class="new-chat" id="newChat"><span>＋</span> Cuộc trò chuyện mới <kbd>/new</kbd></button>
+  <div class="section-label">CONVERSATIONS <span id="conversationCount">0</span></div>
+  <nav id="conversationList" aria-label="Cuộc trò chuyện"></nav>
+  <div class="sidebar-bottom"><span class="local-dot"></span><div>Không gian local của bạn<small>Chat · URL context · Artifacts</small></div></div>
+</aside>
+<main>
+  <header class="topbar"><div class="title-area"><span class="eyebrow">WORKSPACE</span><h1 id="conversationTitle">Phiên hiện tại</h1></div><div class="header-actions"><span class="connection" id="connection"><i></i>Đang kết nối</span><button class="icon-button theme-toggle" id="themeToggle" aria-label="Chuyển sang giao diện tối" aria-pressed="false" title="Giao diện tối">☾</button><button class="icon-button" id="reconnect" title="Kết nối lại Teams" aria-label="Kết nối lại Teams">↻</button><a class="panel-toggle help-link" title="Hướng dẫn vòng phát triển" href="/help" target="_blank" rel="noopener noreferrer" style="text-decoration:none" aria-label="Hướng dẫn Nopilot">? <span>Hướng dẫn</span></a><button class="panel-toggle" id="toggleDev" title="Công cụ nâng cao">⌘ <span>Nâng cao</span></button><button class="panel-toggle" id="toggleArtifacts">▤ <span>Artifacts</span><b id="artifactCount">0</b></button></div></header>
+  <div class="workspace">
+    <section class="chat-area">
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <div class="composer-wrap">
+        <div class="job-stage" id="jobStage" hidden><span class="spinner"></span><span></span></div>
+        <div class="composer">
+          <div class="modebar"><div class="mode-options"><button class="mode active" data-mode="chat">✧ Chat</button><button class="mode" data-mode="url">↗ Đọc URL</button><button class="mode" data-mode="browser">◈ Playwright tool</button><button class="mode" id="workspacePrompt">▱ Workspace</button><button class="mode" id="developPrompt">⌘ Tạo dự án</button></div><span class="mode-note" id="modeNote">Copilot qua workspace local</span></div>
+          <div class="slash-menu" id="slashMenu" hidden></div>
+          <label class="visually-hidden" for="prompt">Tin nhắn cho Copilot</label><textarea id="prompt" rows="2" placeholder="Nhắn Copilot, hoặc nhập / để xem lệnh…"></textarea>
+          <div class="composer-bottom"><span><kbd>Shift</kbd> + <kbd>Enter</kbd> xuống dòng <span class="divider">·</span> <kbd>/</kbd> lệnh · <kbd>Tab</kbd> hoàn thành</span><button class="send" id="send" aria-label="Gửi tin nhắn">↑</button></div>
+        </div>
+        <div class="composer-caption">File local? Nhập <code>/upload "C:\đường dẫn\file.txt"</code> — hoặc gõ /up rồi Tab để chọn đường dẫn.</div>
+      </div>
+    </section>
+    <aside class="artifacts-panel" id="artifactsPanel"><div class="panel-heading"><div><span class="eyebrow">CONVERSATION FILES</span><h2>Artifacts</h2></div><button class="icon-button" id="closeArtifacts" aria-label="Đóng artifacts">×</button></div><button class="folder-button" id="openFolder">↗ Mở thư mục conversation</button><div class="artifact-list" id="artifactList"></div><div class="artifact-note">Context Markdown và file tải về được lưu riêng cho cuộc trò chuyện này.</div></aside>
+  </div>
+
+<aside class="dev-panel" id="devPanel" hidden aria-label="Dev workspace">
+  <div class="panel-heading"><div><span class="eyebrow">BUILD · EXPLORE · ITERATE</span><h2>Dev workspace</h2></div><button class="icon-button" id="closeDev" aria-label="Đóng Dev workspace">×</button></div>
+  <p class="dev-muted" id="devNotice">Project, duyệt lệnh và explorer của conversation hiện tại.</p>
+  <details class="approval-card"><summary>Hướng dẫn: từ yêu cầu đến chạy local</summary><ol><li>Nhập <code>/develop yêu cầu dự án Python</code> trong chat.</li><li>Trên ZIP trả về, chọn Chuẩn bị dự án → xem cây file → giải nén.</li><li>Trong Luồng chạy dự án: duyệt cài dependencies (nếu có), rồi duyệt Chạy hoặc Kiểm tra.</li><li>Xem log, mở URL khai báo nếu là web app. Dừng task trước khi sửa source. Server có timeout tối đa600giây.</li><li>Chọn Soạn yêu cầu sửa; upload log riêng bằng /upload nếu cần, rồi gửi source qua /project. ZIP sửa có thể xem diff rồi apply vào project cũ để giữ venv, hoặc nhập workspace mới.</li></ol><p>Source chỉnh sửa, venv và bản sao chạy nằm riêng. Mỗi lần duyệt chạy dùng đúng revision đã xem; file sinh ra khi chạy nằm trong thư mục lượt chạy.</p></details>
+  <section id="zipInspector" hidden><h3>Xem ZIP trước khi giải nén</h3><p id="zipInfo" class="dev-muted"></p><pre id="zipTree" class="dev-code"></pre><button class="dev-button primary" id="extractZip">Giải nén vào workspace mới</button><label class="dev-label">Hoặc cập nhật project hiện có<select id="zipTarget" aria-label="Project nhận ZIP sửa"></select></label><button class="dev-button" id="previewUpdate">Xem diff ZIP với project đã chọn</button></section>
+  <section id="updateReview" class="approval-card" hidden><h3>Duyệt ZIP sửa</h3><p class="approval-warning">Áp dụng toàn bộ snapshot: file source không có trong ZIP sẽ bị xóa. Kiểm tra diff và commit message. Venv được giữ ngoài source; chưa có code nào chạy.</p><pre id="updateChanges" class="dev-code"></pre><pre id="updateDiff" class="dev-code"></pre><label class="dev-label">Commit message do Copilot đề xuất (có thể sửa)<textarea id="updateMessage" class="dev-iteration" aria-label="Commit message cho ZIP sửa"></textarea></label><label class="dev-review"><input type="checkbox" id="updateAccepted">Tôi đã xem diff, kể cả file bị xóa, và đồng ý áp dụng vào project này.</label><div class="dev-actions"><button class="dev-button primary" id="applyUpdate" disabled>Áp dụng ZIP + commit local</button><button class="dev-button" id="cancelUpdate">Hủy review ZIP</button></div></section>
+  <section><h3>Explorer</h3><div id="explorerList"></div></section>
+  <section><div class="dev-actions"><h3>Project local</h3><button class="dev-button" id="devNew">＋ Project Python</button></div><select id="devProject" aria-label="Chọn project"></select>
+    <div id="projectDetails" hidden><section class="approval-card"><h3>Luồng chạy dự án</h3><div id="devFlow"></div></section><p class="dev-muted" id="devRevision"></p><div class="dev-actions"><button class="dev-button" id="devFolder">Mở folder source</button><button class="dev-button" id="devExport">Xuất ZIP</button><button class="dev-button" id="devRepair">Soạn yêu cầu sửa</button></div>
+      <details><summary>Git local của project</summary><p class="dev-muted">Repository riêng do Nopilot quản lý, ngoài source; không push lên remote. Apply ZIP sửa sẽ lưu source hiện tại trước rồi commit bản mới.</p><button class="dev-button" id="gitHistory">Xem lịch sử / lấy message Copilot</button><pre id="gitLog" class="dev-code"></pre><textarea id="gitMessage" class="dev-iteration" aria-label="Commit message cho source hiện tại" placeholder="Commit message…"></textarea><button class="dev-button" id="gitCommit">Commit source hiện tại</button></details>
+      <label class="dev-label">File nguồn<select id="devFile" aria-label="File nguồn"></select></label><button class="dev-button" id="devRead">Đọc file</button>
+      <textarea id="devEditor" class="dev-editor" spellcheck="false" aria-label="Nội dung file nguồn" placeholder="Chọn file rồi bấm Đọc file…"></textarea><button class="dev-button" id="devSave">Lưu sửa đổi + checkpoint</button>
+      <label class="dev-label">So với checkpoint<select id="devCheckpoint" aria-label="Checkpoint"></select></label><div class="dev-actions"><button class="dev-button" id="devDiff">Xem diff</button><button class="dev-button" id="devRollback">Khôi phục checkpoint</button></div><pre class="dev-code" id="devDiffText"></pre>
+      <label class="dev-label">Python entrypoint<select id="devEntry" aria-label="Python entrypoint"></select></label><label class="dev-label">Tham số (đặt giá trị có dấu cách trong dấu ngoặc kép)<input id="devArgs" placeholder='--headless --output "result.txt"'></label><label class="dev-label">Timeout (giây)<input id="devTimeout" type="number" min="1" max="600" value="120"></label>
+      <label class="dev-label">Môi trường chạy<select id="devExecutionMode"><option value="host">Windows hiện tại · cần duyệt mã</option><option value="container">Container · không mạng, project chỉ đọc</option></select></label>
+      <div class="dev-actions"><button class="dev-button" id="devInstall">Đề xuất cài requirements</button><button class="dev-button primary" id="devPropose">Đề xuất chạy</button></div>
+    </div>
+  </section>
+  <section><h3>Chờ bạn duyệt</h3><div id="approvalList"></div></section>
+  <section><h3>Log chạy local</h3><select id="devRun" aria-label="Lượt chạy"></select><div class="dev-actions"><p class="dev-muted" id="devRunStatus"></p><button class="dev-button" id="devRunFolder">Mở thư mục lượt chạy</button><button class="dev-button danger" id="devStop">Dừng cả cây process</button></div><pre class="dev-log" id="devLog" aria-live="polite"></pre></section>
+</aside>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="/vendor/markdown-it.min.js"></script><script src="/vendor/highlight.min.js"></script><script src="/markdown.js"></script><script src="/app.js"></script><script src="/workspaces.js"></script><script src="/chat_projects.js"></script><script src="/dev.js"></script>
+</body></html>

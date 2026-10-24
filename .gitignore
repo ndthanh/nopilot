@@ -1,0 +1,26 @@
+# Local runtime, credentials, user conversations and downloaded/generated projects
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+work/
+artifacts/
+conversations/
+downloads/
+logs/
+*.log
+*.jsonl
+*.zip
+.env
+.env.*
+*.pem
+*.key
+
+# Historical local QA outputs (retain source, docs and portable tests)
+/*-result.json
+/*-summary.json
+/frida-download-test.txt
+/ui-smoke-fixture.txt
+.DS_Store
+Thumbs.db

@@ -1,0 +1,5 @@
+frida==17.24.3
+pefile==2024.8.26
+beautifulsoup4==4.15.0
+markdownify==1.2.3
+pathspec==1.1.1
