@@ -1,4 +1,4 @@
-# Lời nhắn cho Copilot trên máy công ty — ITC Save as discovery
+# Lời nhắn cho Copilot — ITC Save as discovery
 
 Bạn đang hỗ trợ kiểm thử bản `agent.js` + `flow_test.py` mới cho ITC/Qt3. Mục tiêu là loại phụ thuộc menu ID cố định trong bước **report hoàn tất → File > Save as của cửa sổ con → Select file**. Không mang log ra ngoài; đọc và phân tích ngay trên máy công ty.
 
